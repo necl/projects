@@ -1,0 +1,20 @@
+ngx_addon_name=ngx_http_echo_module
+
+echo_SRCS=" $ngx_addon_dir/ngx_http_echo_module.c \
+			$ngx_addon_dir/echo.c"
+echo_DEPS=
+
+echo_INCS="/home/zp/projects/jansson-2.7/src"
+
+echo_LIBS="/home/zp/projects/jansson-2.7/src/.libs/libjansson.a"
+
+HTTP_INCS="$HTTP_INCS $echo_INCS"
+CORE_LIBS="$echo_LIBS $CORE_LIBS"
+echo $CORE_LIBS
+
+HTTP_MODULES="$HTTP_MODULES $ngx_addon_name"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS $echo_SRCS"
+NGX_ADDON_DEPS="$NGX_ADDON_DEPS $echo_DEPS"
+
+
+

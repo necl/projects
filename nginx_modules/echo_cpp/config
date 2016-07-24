@@ -1,0 +1,20 @@
+ngx_addon_name=ngx_http_echocpp_module
+
+echocpp_SRCS=" $ngx_addon_dir/ngx_http_echocpp_module.cpp \
+			$ngx_addon_dir/echo.cpp"
+echocpp_DEPS=
+
+echocpp_INCS="/home/zp/projects/jansson-2.7/src"
+
+echocpp_LIBS="/home/zp/projects/jansson-2.7/src/.libs/libjansson.a\
+			 -lstdc++"
+
+HTTP_INCS="$HTTP_INCS $echocpp_INCS"
+CORE_LIBS="$echocpp_LIBS $CORE_LIBS"
+
+HTTP_MODULES="$HTTP_MODULES $ngx_addon_name"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS $echocpp_SRCS"
+NGX_ADDON_DEPS="$NGX_ADDON_DEPS $echocpp_DEPS"
+
+
+

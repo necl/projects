@@ -1,0 +1,13 @@
+syntax="proto2";
+
+// namespace
+package recorder;
+
+
+message RecorderWorkerData {
+    required string id = 1;  //r00001, r000xx
+    required string host = 2;
+    required int32 port = 3;
+    required int32 capacity = 4;
+}
+

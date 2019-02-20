@@ -9,7 +9,7 @@ import Recordercomm.RecorderWorkerData
 
 
 
-class Worker(val zkConnectString: String, val workerId: String, val localHostPort: String) extends Watcher {
+class Worker(val zkConnectString: String, val workerId: String, val localHostPort: String, val capacity: Int=100) extends Watcher {
   private var connected_ = false
   private var expired_ = false
   private var zk: ZooKeeper = null
@@ -29,7 +29,7 @@ class Worker(val zkConnectString: String, val workerId: String, val localHostPor
     builder.setId(workerId)
     builder.setHost(hostport(0))
     builder.setPort(hostport(1).toInt)
-    builder.setCapacity(100);
+    builder.setCapacity(capacity);
 
     val workerData = builder.build()
     val buf = workerData.toByteArray()
@@ -67,8 +67,16 @@ class Worker(val zkConnectString: String, val workerId: String, val localHostPor
 
 object Worker {
   def main(args: Array[String]) : Unit = {
-    val localHostPort = "127.0.0.1:15657"
-    val worker = new Worker("192.168.9.227:2181", "r00001", localHostPort)
+    val usage = "<zookeeper> <workerId>  <localhostport> [capacity]"
+
+    println("command line argument:" + args.mkString(" "))
+
+    val zkConnectString = if (args.length >= 1) args(0) else "192.168.9.227:2181"
+    val workerId = if (args.length >= 2) args(1) else "r00001"
+    val localHostPort = if (args.length >= 3) args(2) else "127.0.0.1:15657"
+    val capacity = if (args.length >=4) args(3).toInt else 100
+
+    val worker = new Worker(zkConnectString, workerId, localHostPort, capacity)
 
     worker.startZK()
 
@@ -78,10 +86,9 @@ object Worker {
 
     worker.register();
 
-    Thread.sleep(30000)
-    //while(true) {
-    //  Thread.sleep(1000)
-    //}
+    while(true) {
+      Thread.sleep(1000)
+    }
     
   }
 }

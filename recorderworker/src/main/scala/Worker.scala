@@ -5,6 +5,9 @@ import org.apache.zookeeper.Watcher.Event.KeeperState
 import org.apache.zookeeper.ZooDefs.Ids.OPEN_ACL_UNSAFE
 import org.apache.zookeeper.CreateMode
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+
 import Recordercomm.RecorderWorkerData
 
 
@@ -68,6 +71,7 @@ class Worker(val zkConnectString: String, val workerId: String, val localHostPor
 
 object Worker {
 
+  val logger = LogManager.getLogger("Wokrer")
   //commands option table
   type OptionTable = Map[Symbol, Any]  
 
@@ -84,6 +88,9 @@ object Worker {
   }
 
   def main(args: Array[String]) : Unit = {
+
+      logger.error("Hello Worker")
+
     val usage = "--zookeeper <zookeeper, ip:port>  --worker <workerId>  --localaddr <localaddr, ip:port> --capacity <capacity, default 100>"
     if(args.length == 0) { 
       println(usage)

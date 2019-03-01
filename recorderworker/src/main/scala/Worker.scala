@@ -14,8 +14,8 @@ class Worker(val zkConnectString: String, val workerId: String, val localHostPor
   private var expired_ = false
   private var zk: ZooKeeper = null
 
-
   def startZK() = {
+    println("startZK");
     val sessionTimeout = 15000
     zk = new ZooKeeper(zkConnectString, sessionTimeout, this)
   }
@@ -24,6 +24,7 @@ class Worker(val zkConnectString: String, val workerId: String, val localHostPor
   def isExpired() = expired_
 
   def register() = {
+    println("register");
     val builder = RecorderWorkerData.newBuilder()
     val hostport = localHostPort.split(':')
     builder.setId(workerId)
@@ -66,15 +67,40 @@ class Worker(val zkConnectString: String, val workerId: String, val localHostPor
 }
 
 object Worker {
+
+  //commands option table
+  type OptionTable = Map[Symbol, Any]  
+
+  def nextOption(tbl: OptionTable, arglist: List[String]) : OptionTable = {
+    arglist match {
+      case Nil => tbl
+      case "--zookeeper" :: value :: tail => nextOption(tbl + ('zookeeper -> value), tail)
+      case "--worker" :: value :: tail => nextOption(tbl + ('worker -> value), tail)
+      case "--localaddr" :: value :: tail => nextOption(tbl + ('localaddr -> value), tail)
+      case "--capacity" :: value :: tail => nextOption(tbl + ('capacity -> value.toInt), tail)
+      case option :: tail  => println("Unknown option " + option) 
+                              nextOption(tbl, tail)
+    }
+  }
+
   def main(args: Array[String]) : Unit = {
-    val usage = "<zookeeper> <workerId>  <localhostport> [capacity]"
+    val usage = "--zookeeper <zookeeper, ip:port>  --worker <workerId>  --localaddr <localaddr, ip:port> --capacity <capacity, default 100>"
+    if(args.length == 0) { 
+      println(usage)
+      return
+    }
 
-    println("command line argument:" + args.mkString(" "))
+    val optionTbl = nextOption(Map(), args.toList)
 
-    val zkConnectString = if (args.length >= 1) args(0) else "192.168.9.227:2181"
-    val workerId = if (args.length >= 2) args(1) else "r00001"
-    val localHostPort = if (args.length >= 3) args(2) else "127.0.0.1:15657"
-    val capacity = if (args.length >=4) args(3).toInt else 100
+    val zkConnectString = optionTbl.getOrElse('zookeeper, "").asInstanceOf[String]
+    val workerId = optionTbl.getOrElse('worker, "").asInstanceOf[String]
+    val localHostPort = optionTbl.getOrElse('localaddr, "").asInstanceOf[String]
+    val capacity = optionTbl.getOrElse('capacity, 100).asInstanceOf[Int]
+
+    if( (zkConnectString.length == 0) || (workerId.length == 0) || (localHostPort.length == 0)) {
+      println(usage)
+      return
+    }
 
     val worker = new Worker(zkConnectString, workerId, localHostPort, capacity)
 
@@ -86,6 +112,7 @@ object Worker {
 
     worker.register();
 
+    //Thread.sleep(10000)
     while(true) {
       Thread.sleep(1000)
     }
